@@ -3,24 +3,27 @@ import { useTodo } from "../hooks/todo";
 import Loading from "../components/Loading";
 import TodoSection from "../components/todo/TodoSection";
 import styles from "../styles/Home.module.css";
+import dynamic from 'next/dynamic';
 
 const Home = () => {
   const {
     initialized,
-    initializeStaticUser,
     loading,
     transactionPending,
     completedTodos,
     incompleteTodos,
     addTodo,
     markTodo,
-    removeTodo,
-    markStaticTodo,
-    removeStaticTodo,
-    addStaticTodo,
+    deleteTodo,
     input,
     handleChange,
+    initializeUser,
   } = useTodo();
+
+  const WalletMultiButtonDynamic = dynamic(
+    async () => (await import('@solana/wallet-adapter-react-ui')).WalletMultiButton,
+    { ssr: false }
+);
 
   return (
     <div className={styles.container}>
@@ -29,7 +32,7 @@ const Home = () => {
           <div className={styles.todoInput}>
             <div className={`${styles.todoCheckbox} ${styles.checked}`} />
             <div className={styles.inputContainer}>
-              <form onSubmit={addStaticTodo}>
+              <form onSubmit={addTodo}>
                 <input
                   value={input}
                   onChange={handleChange}
@@ -45,13 +48,13 @@ const Home = () => {
           <button
             type="button"
             className={styles.button}
-            onClick={() => initializeStaticUser()}
+            onClick={initializeUser}
             disabled={transactionPending}
           >
             Initialize
           </button>
         )}
-        <WalletMultiButton />
+        <WalletMultiButtonDynamic />
       </div>
 
       <div className={styles.mainContainer}>
@@ -59,13 +62,13 @@ const Home = () => {
           <TodoSection
             title="Tasks"
             todos={incompleteTodos}
-            action={markStaticTodo}
+            action={markTodo}
           />
 
           <TodoSection
             title="Completed"
             todos={completedTodos}
-            action={removeStaticTodo}
+            action={deleteTodo}
           />
         </Loading>
       </div>
